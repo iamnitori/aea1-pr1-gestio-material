@@ -46,6 +46,12 @@ public class Main {
                 case 5:
                     filtrarMaterialsPerCategoria(service, sc);
                     break;
+                case 6: 
+                	prestarMaterial(service, sc); 
+                	break;
+                case 7: 
+                	llistarPrestecs(service); 
+                	break;
                 case 0:
                     System.out.println("Fins aviat!");
                     break;
@@ -66,6 +72,8 @@ public class Main {
         System.out.println("3. Llistar categories");
         System.out.println("4. Llistar materials");
         System.out.println("5. Llistar materials per categoria");
+        System.out.println("6. Prestar material");
+        System.out.println("7. Llistar préstecs");
         System.out.println("0. Sortir");
         System.out.print("Tria una opció: ");
     }
@@ -171,4 +179,59 @@ public class Main {
         System.out.println("Materials de la categoria " + filtCat.getNom() + ":");
         matCat.forEach(System.out::println);
     }
+    
+    /** Registra un préstec de material */
+    private static void prestarMaterial(InventariService service, Scanner sc) {
+
+        if (service.getMaterials().isEmpty()) {
+            System.out.println("No hi ha materials disponibles.");
+            return;
+        }
+
+        System.out.println("Materials disponibles:");
+        service.getMaterials().forEach(m -> System.out.println("- " + m.getNom() + " (" + m.getQuantitat() + ")"));
+
+        System.out.print("Quin material vols prestar? ");
+        String nomMaterial = sc.nextLine().trim();
+        Material material = service.getMaterialByName(nomMaterial);
+
+        if (material == null) {
+            System.out.println("Aquest material no existeix.");
+            return;
+        }
+
+        System.out.print("Quantitat a prestar: ");
+        int quantitat;
+        try {
+            quantitat = Integer.parseInt(sc.nextLine());
+            if (quantitat <= 0 || quantitat > material.getQuantitat()) {
+                System.out.println("Quantitat no vàlida.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Valor no numèric.");
+            return;
+        }
+
+        System.out.print("Nom del professor: ");
+        String professor = sc.nextLine().trim();
+
+        service.prestarMaterial(material, quantitat, professor);
+        System.out.println("Préstec registrat correctament!");
+    }
+    
+    /** Llista tots els préstecs registrats */
+    private static void llistarPrestecs(InventariService service) {
+        var prestecs = service.getPrestecs();
+
+        if (prestecs.isEmpty()) {
+            System.out.println("No hi ha préstecs registrats.");
+            return;
+        }
+
+        System.out.println("\n=== Préstecs ===");
+        prestecs.forEach(p -> System.out.println("- " + p));
+    }
+
+
 }

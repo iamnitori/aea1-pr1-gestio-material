@@ -1,8 +1,10 @@
 package service;
 
 import model.Material;
+import model.Prestec;
 import model.Categoria;
 import repository.InventariRepository;
+import repository.PrestecRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +16,12 @@ import java.util.stream.Collectors;
 public class InventariService {
     private InventariRepository repo;
     private List<Categoria> categories;
+    private PrestecService prestecService;
 
     public InventariService(InventariRepository repo) {
         this.repo = repo;
         this.categories = new ArrayList<>();
+        this.prestecService = new PrestecService(new PrestecRepository());
     }
 
     /** Afegeix una nova categoria */
@@ -60,4 +64,24 @@ public class InventariService {
                 .filter(m -> m.getCategoria().equals(categoria))
                 .collect(Collectors.toList());
     }
+    
+    /** Busca un material pel nom */
+    public Material getMaterialByName(String nom) {
+        return repo.getMaterials().stream()
+                .filter(m -> m.getNom().equalsIgnoreCase(nom))
+                .findFirst()
+                .orElse(null);
+    }
+    
+    /** Presta material */
+    public void prestarMaterial(Material material, int quantitat, String professor) {
+        prestecService.prestar(material, quantitat, professor);
+    }
+
+    /** Retorna tots els préstecs registrats */
+    public List<Prestec> getPrestecs() {
+        return prestecService.getPrestecs();
+    }
+
+
 }
